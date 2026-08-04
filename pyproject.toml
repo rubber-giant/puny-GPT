@@ -1,0 +1,14 @@
+[project]
+name = "puny-gpt"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "datasets>=5.0.1",
+    "huggingface-hub>=1.26.0",
+    "numpy>=2.5.1",
+    "torch>=2.13.0",
+    "torchaudio>=2.11.0",
+    "torchvision>=0.28.0",
+]
