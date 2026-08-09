@@ -14,7 +14,6 @@ char = set()
 for story in train['text']:
     char.update(story)
 vocab = sorted(char)
-vocab_size = len(char)
 
 # Save vocab separately 
 with open("data/vocab.json",'w') as f:
@@ -24,10 +23,11 @@ with open("data/vocab.json",'w') as f:
 tokenizer = CharTokenizer(vocab)
 
 # encode train data
-with open("data/train.bin","wb") as f:
+ith open("data/train.bin","wb") as f:
    for story in train["text"]:
        token = tokenizer.encode(story)
-        np.array(token,
+       token.append(tokenizer.eos_token)
+       np.array(token,
                  dtype = np.uint8
                 ).tofile(f)    
 
@@ -35,7 +35,8 @@ with open("data/train.bin","wb") as f:
 # encode val data
 with open("data/val.bin", 'wb') as f:
     for story in val['text']:
-        token = tokenizer.decode(story)
+        token = tokenizer.encode(story)
+        token.append(tokenizer.eos_token)
         np.array(token,
                  dtype = np.uint8
                  ).tofile(f)
