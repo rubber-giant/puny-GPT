@@ -4,6 +4,7 @@ class CharTokenizer:
         self.stoi = {ch:i for i, ch in enumerate(vocab)}
         self.itos = {i:ch for i, ch in enumerate(vocab)}
         self.eos_token = len(vocab)
+        self.vocab_size = len(vocab)+1
 
     def encode(self, text):
         return [self.stoi[ch] for ch in text]

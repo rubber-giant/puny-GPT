@@ -14,6 +14,7 @@ char = set()
 for story in train['text']:
     char.update(story)
 vocab = sorted(char)
+vocab_size = len(char)+1
 
 # Save vocab separately 
 with open("data/vocab.json",'w') as f:
