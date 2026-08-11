@@ -10,14 +10,13 @@ class CharTokenizer:
         return [self.stoi[ch] for ch in text]
     def decode(self,tokens):
         return ''.join(
-                self.itos[t]
-                if token!=self.eos_token
+                [self.itos[token] if token!=self.eos_token
                 else "<EOS>"
-                for t in tokens
+                for token in tokens]
                 )
 
     @classmethod
-    def load(cls, path):
+    def load(cls):
         with open("data/vocab.json",'r') as f:
             vocab = json.load(f)
         return cls(vocab)
