@@ -1,1 +1,1 @@
-# smol-BigramModel
+# puny-GPT
