@@ -28,6 +28,10 @@ def get_batches(batch_size, block_size, split='val'):
     y = torch.squeeze(y).to(device)
     return x, y
 
+================================================================================
+## Transformer 
+================================================================================
+
 class Attention_h(nn.Module):
     def __init__(self, block_size, head_size):
         super().__init__()
@@ -36,12 +40,13 @@ class Attention_h(nn.Module):
         self.value= nn.Linear(n_embd, head_size, bias=False)
         self.register_buffer('mask',torch.tril(torch.ones(block_size,block_size),device=device))
 
-    def forward(self, x):
-        q = query(x)
-        k = key(x)
-        v = value(x)
+    def forward(self, idx):
+        B,T,C = idx.shape
+        q = query(idx)      #(B,T,head_size)
+        k = key(idx)        #(B,T,head_size)
+        v = value(idx)      #(B,T,head_size)
         wei = q @ k.transpose(-2,-1)    # Affinity Matrix
-        wei = torch.mul(wei, (head_size**-0.5))     # Normalize values
+        wei = torch.mul(wei, (C**-0.5))     # Normalize values
         
         wei = wei.masked_fill(mask==0,float('-inf'))
         prob_wei = F.softmax(wei, dim=1)
@@ -52,24 +57,28 @@ class Attention_h(nn.Module):
 
 class Transformer(nn.Module):
 
-    def __init__(self, vocab_size, block_size, n_embd):
+    def __init__(self, vocab_size, block_size, n_embd, num_head, head_size):        ## head_size * num_head = n_embd Always
         super().__init__()
             # Token lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.positional_embedding_table = nn.Embedding(block_size,n_embd)
         self.lm_head = nn.Linear(n_embd, vocab_size)   #(input size,output size)
+        
+        self.att_head = nn.ModuleList([Attention_h(head_size) for i in range(num_head]))
    
     def forward(self,idx,targets=None):
         B,T = idx.shape
-
         # idx is x and targets is y. With dimension (B,T)
         x_embd = self.token_embedding_table(idx)    #(B,T,C)  C is n_embd
         x_embd = torch.mul(x_embd,torch.sqrt(n_embd/vocab_size))
         pos_embd = self.positional_embedding_table(torch.arange(T,device=device))  #(T,C) C is n_embd
 
-        embd = torch.add(tok_embd,pos_embd)
+        embd = torch.add(tok_embd,pos_embd)     #PE + TE    #(B,T,C)
 
-        logits = self.lm_head(embd)     #(B,T,vocab_size)
+        ## Multi-Head Attention
+        out = torch.cat([head(embd) for head in self.att_head], dim=-1)
+
+        logits = self.lm_head(out)     #(B,T, n_embd)
         
         # For inference and train separation in loop
         if targets==None:
