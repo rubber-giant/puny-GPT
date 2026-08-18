@@ -12,14 +12,16 @@ vocab_size = tok.vocab_size
 # HyperParams
 batch_size = 64     # how many independent sequences in parallel?
 block_size = 12    # the context length ofcourse
+n_embd = 32
 max_iter = 2000
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 100
 eval_interval = 200
 
+
 # Model instance
 print(vocab_size)
-model = BigramLanguageModel(vocab_size)
+model = BigramLanguageModel(vocab_size, block_size, n_embd)
 model = model.to(device)
 # Optimizer
 optimizer = torch.optim.Adam(model.parameters(), lr=3e-3)
